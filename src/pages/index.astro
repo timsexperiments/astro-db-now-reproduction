@@ -10,7 +10,7 @@ const [{ timestamp, defaultTimestamp }] = await db
 const structuredQuery = sql`SELECT ${NOW} AS date, DATETIME(${NOW}, 'localtime') AS localTime`;
 
 const {
-  rows: [{ date, localTime }],
+  rows: [[date, localTime]],
 } = await db.run(structuredQuery);
 
 console.log(date, localTime);
