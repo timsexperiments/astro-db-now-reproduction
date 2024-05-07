@@ -1,6 +1,8 @@
 import { defineConfig } from 'astro/config';
-
 import cloudflare from "@astrojs/cloudflare";
+import db from "@astrojs/db";
+
+import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,5 +11,6 @@ export default defineConfig({
     platformProxy: {
       enabled: true
     }
-  })
+  }),
+  integrations: [db(), tailwind()]
 });

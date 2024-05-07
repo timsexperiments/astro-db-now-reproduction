@@ -1,16 +1,48 @@
 ---
+import { db, NOW, sql, Test } from 'astro:db';
+import '../styles/global.css';
 
+const [{ timestamp, defaultTimestamp }] = await db
+  .insert(Test)
+  .values({ timestamp: NOW })
+  .returning();
+
+const structuredQuery = sql`SELECT ${NOW} AS date, DATETIME(${NOW}, 'localtime') AS localTime`;
+
+const {
+  rows: [{ date, localTime }],
+} = await db.run(structuredQuery);
+
+console.log(date, localTime);
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro DB NOW Issue Reproduction</title>
+  </head>
+  <body class="space-y-8">
+    <p>{timestamp.toISOString()} (Created by default constraint)</p>
+    <p>{defaultTimestamp.toISOString()} (Created by using NOW in insert)</p>
+    <p>
+      {new Date(date as string).toISOString()} (Created by using `SELECT NOW` in
+      query. This one actually makes sense because it is being parsed as a string
+      and doesn't include any time info)
+    </p>
+    <p>
+      {new Date((date as string) + 'z').toISOString()} (Created by using `SELECT
+      NOW` in query converted with JavaScript. By default the timestamps from LibSQL
+      seem to be dates that are in UTC time by not formatted with the timezone. By
+      adding the 'z' to the timestamp string, it now gives the propper Date in JavaScript)
+    </p>
+    <p>
+      {new Date(localTime as string).toISOString()} (Created using `SELECT DATETIME(NOW,
+      'localtime')`. This works because it is being stored and parsed in local time
+      of the server / runtime)
+    </p>
+    <p>{new Date().toISOString()} (JavaScript Runtime new Date())</p>
+  </body>
 </html>
