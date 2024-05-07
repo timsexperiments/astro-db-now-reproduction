@@ -11,7 +11,7 @@ const structuredQuery = sql`SELECT ${NOW} AS date, DATETIME(${NOW}, 'localtime')
 
 const {
   rows: [[date, localTime]],
-} = await db.run(structuredQuery);
+} = await db.run(structuredQuery); // This will only work when the query is run with a remote DB when using local db replace the `[date, localTime]` with `{date, localTime}`.
 
 console.log(date, localTime);
 ---
